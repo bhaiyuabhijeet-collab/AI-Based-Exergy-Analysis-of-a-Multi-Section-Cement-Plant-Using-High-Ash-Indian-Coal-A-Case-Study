@@ -1,0 +1,30 @@
+PLANT-WIDE SHAP - SPECIFIC IRREVERSIBILITY (plant_spec_I_MJkg, MJ/kg) [model: ANN]
+(complementary to per-section analysis; normalized mean|SHAP|, 26 inputs)
+==========================================================================
+   1. Raw-meal feed    0.2075
+   2. Coal feed        0.1267
+   3. RM gas T         0.1093
+   4. Calciner T       0.1088
+   5. RM dryer T       0.0988
+   6. Cooler air 2     0.0447
+   7. PH-K5 T          0.0405
+   8. PH-C5 T          0.0239
+   9. Sec-air split    0.0232
+  10. Cooler air 1     0.0217
+  11. PH-C3 T          0.0211
+  12. Gas-heater T     0.0204
+  13. PH-C1 T          0.0197
+  14. CM gas T         0.0177
+  15. CM dryer T       0.0161
+  16. PH-K1 T          0.0141
+  17. PH-C2 T          0.0122
+  18. Coal split       0.0122
+  19. CM gas flow      0.0121
+  20. PH-K3 T          0.0110
+  21. PH-C4 T          0.0089
+  22. RM fan T         0.0067
+  23. PH-K4 T          0.0067
+  24. Meal split       0.0059
+  25. RM gas flow      0.0053
+  26. PH-K2 T          0.0048
+==========================================================================

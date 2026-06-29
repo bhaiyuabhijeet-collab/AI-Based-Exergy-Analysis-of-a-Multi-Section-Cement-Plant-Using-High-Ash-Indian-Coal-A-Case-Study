@@ -4,7 +4,7 @@
 ================================================================================
 EXERGY CAMPAIGN DRIVER  -  ANN training-set generator
 ================================================================================
-Wraps the validated base-case model + exergy_calculator_v2 to produce N samples
+Wraps the validated base-case model + exergy_calculator to produce N samples
 for ANN training. For each sample it:
   1. perturbs the chosen INPUT variables (Latin-Hypercube over their ranges),
   2. pushes them into the open Aspen case, runs it headless,
@@ -19,7 +19,7 @@ Design choices that matter:
   * ONE Aspen session is opened once and reused for all N runs (fast). The model
     file is the frozen base case; the driver only changes the sampled inputs each
     run and resets/re-solves.
-  * The exergy logic is IMPORTED from exergy_calculator_v2.py - not duplicated -
+  * The exergy logic is IMPORTED from exergy_calculator.py - not duplicated -
     so the campaign always matches the validated base case. If you improve the
     calculator, the campaign inherits it automatically.
   * Reproducible: fixed RNG seed -> the same 500 samples regenerate identically.
@@ -37,7 +37,7 @@ FOLDER = r"D:\Ph.D\Ph.D Research paper work\AI-Based Exergy Analysis of a Multi-
 BKP        = os.path.join(FOLDER, "new cmill rmill preheater calciner kiln cooler.bkp")
 OUT_CSV    = os.path.join(FOLDER, "ann_dataset.csv")
 LOG_TXT    = os.path.join(FOLDER, "campaign_log.txt")
-CALC_MODULE_DIR = FOLDER          # where exergy_calculator_v2.py lives
+CALC_MODULE_DIR = FOLDER          # where exergy_calculator.py lives
 N_SAMPLES  = 500                  # legacy fixed-count mode (used if TARGET_OK<=0)
 TARGET_OK  = 500                  # >0: keep sampling until this many accepted rows
 MAX_TRIES  = 1500                 # safety cap on total Aspen runs in target mode
@@ -46,7 +46,31 @@ COUNT_CAPPED_AS_OK = False        # False: only PURE-OK (eps<=1, no capping) cou
                                   # True : OK + OK_CAPPED both count (fewer runs).
 RNG_SEED   = 20260613
 RESUME     = True                 # append to existing CSV / skip done samples
-SETTLE_RUNS = 1                   # extra Run2() passes per sample if recycle loops
+SETTLE_RUNS = 2                   # Run2() passes per sample (you chose 2). Each
+                                  # pass solves the flowsheet to convergence; the
+                                  # 2nd pass is belt-and-suspenders for recycles.
+
+# Specific coal exergy (J/kg) cache. Coal exergy per unit mass is a FUEL PROPERTY;
+# it is computed once on the first evaluate() and frozen, so the fixed fuel-exergy
+# efficiency denominator is genuinely solve-independent (prevents the eps artefact
+# at the optimum). Reset to [None] if you ever change the coal definition.
+_EX_SP_CACHE = [None]
+
+# Electrical (auxiliary) work cache. Frozen at the base case for the same reason as
+# the fuel basis: at fixed production the genuine electrical load is constant, and
+# some "work"-tagged blocks are actually thermal duties that misbehave off-design.
+# Reset to [None] if the base electrical configuration changes.
+_ELEC_CACHE = [None]
+
+
+
+# ----- BRANCH GUARD --------------------------------------------------------
+# A bad solve can land the drying-gas loop on a spurious hot branch (RMINLETG
+# ~709 K) which inflates the raw mill (~31 MW) and the plant total (~130 MW).
+# Such a sample is non-physical and must NOT enter the training set. We reject
+# any sample whose gas temperature or plant total exceeds these limits.
+GUARD_RMINLETG_MAX_K = 600.0      # reject if RMINLETG solves above this (base 436 K)was 470; raised clear of legitimate +10% warm samples
+GUARD_PLANT_MAX_MW   = 135.0      # reject if plant total exceeds this (base ~108-110 MW); optional: raise from 125 if high-destruction corners are valid
 
 # ----- INPUT variables to perturb (all 26 independent model handles) ---------
 # Each entry: key -> dict(node, lo, hi, unit, kind)
@@ -119,9 +143,9 @@ SECTIONS_ORDER = ["Raw Mill","Coal Mill","Preheater","Calciner","Kiln","Clinker 
 # ============================================================ IMPORT CALC ======
 sys.path.insert(0, CALC_MODULE_DIR)
 try:
-    import exergy_calculator_v2 as EX
+    import exergy_calculator as EX
 except Exception as e:
-    print("Could not import exergy_calculator_v2.py from", CALC_MODULE_DIR)
+    print("Could not import exergy_calculator.py from", CALC_MODULE_DIR)
     print("Place this driver in the same folder, or fix CALC_MODULE_DIR.")
     raise
 
@@ -153,6 +177,13 @@ def build_samples():
             s[k] = lo + pts[i, j]*(hi-lo)
         samples.append(s)
     return keys, samples
+
+def base_sample():
+    """The unperturbed base case: every input at its nominal value. For the
+       symmetric +-10% envelope and the clipped split bands, the nominal value
+       is the midpoint of [lo, hi]. Used to write the base case as the FIRST
+       dataset row and to cross-check the driver against exergy_calculator."""
+    return {k: 0.5*(INPUTS[k]["lo"] + INPUTS[k]["hi"]) for k in INPUTS}
 
 # ============================================================ ASPEN I/O ========
 
@@ -216,12 +247,24 @@ def set_input(aspen, key, value):
 
 def apply_and_run(aspen, sample, keys):
     """Reset to an unsolved state, write the sampled inputs, then solve.
-    Writing FSplit fractions only AFTER Reset avoids the
-    '!CC error, using old value' that occurs when a solved case is edited."""
+
+    Reinit() BEFORE writing inputs / solving is essential: it clears the previous
+    converged solution so the flowsheet is re-solved from a clean state. Writing
+    FSplit fractions only AFTER Reinit also avoids the '!CC error, using old
+    value' raised when a solved case is edited. SETTLE_RUNS solve passes follow.
+    """
     aspen.Reinit()                 # clear the previous converged solution
     for k in keys:
         set_input(aspen, k, sample[k])
-    aspen.Engine.Run2()
+    for _ in range(max(1, SETTLE_RUNS)):
+        aspen.Engine.Run2()
+
+def rminletg_T(aspen):
+    """Solved drying-gas-inlet temperature [K] (the branch-jump sentinel)."""
+    try:
+        return EX.read_stream(aspen, "RMINLETG")["T"]
+    except Exception:
+        return None
 
 # ============================================================ EVALUATE =========
 def evaluate(aspen):
@@ -297,16 +340,63 @@ def evaluate(aspen):
         sections[sec]={"ex_in":ex_in,"ex_out":ex_out,"W":W,"Qx":Qx,"E_resid":E_resid,
                        "I_B":I_B,"I_A":I_A,"eps":eps,"IP":IP}
     coal_ex=EXt("CALCOAL")+EXt("KILNCOAL")
-    elec=sum(b[2] for sec in EX.SECTION_BLOCKS for b in
-             [(x[0],x[1],EX.block_duty(aspen,x[0]),0,0) for x in EX.SECTION_BLOCKS[sec]]
-             if b[1]=="work")
+    # Electrical (mechanical) work input. The exergy-efficiency denominator uses the
+    # genuine auxiliary electrical load (grinding/fans), which at FIXED production is
+    # essentially constant. Some model blocks tagged "work" are actually THERMAL
+    # duties (dryer, gas heater) whose sign reverses far from the base point; summing
+    # those each solve makes elec swing wildly negative at off-design optima and
+    # corrupts the efficiency denominator. We therefore evaluate electrical work ONCE
+    # at the base case and FREEZE it (same rationale as the fixed fuel-exergy basis),
+    # giving one consistent electrical-work value across the base case, every dataset
+    # row, and the PSO optimum.
+    _work_blocks=[]
+    for sec in EX.SECTION_BLOCKS:
+        for x in EX.SECTION_BLOCKS[sec]:
+            if x[1]=="work":
+                _work_blocks.append((sec,x[0],EX.block_duty(aspen,x[0])))
+    if _ELEC_CACHE[0] is None:
+        _ELEC_CACHE[0]=sum(d for (_,_,d) in _work_blocks)   # frozen at base
+    elec=_ELEC_CACHE[0]
+    if os.environ.get("PSO_DIAG","0")=="1":
+        print("      [elec-diag] frozen elec=%.4f MW; this-solve blocks:"%(elec/1e6))
+        for sec,blk,d in _work_blocks:
+            print("         %-14s %-12s %+10.4f MW"%(sec,blk,d/1e6))
     clk=EXt("CLINKOUT")
-    plant={"I_B":sum(s["I_B"] for s in sections.values()),
+    tot_IB=sum(s["I_B"] for s in sections.values())
+
+    # ---- fixed fuel-exergy basis (solve-independent), mirrors the calculator --
+    def smass(s): r=SR.get(s); return r["m"] if (r and r.get("m")) else 0.0
+    m_coal=smass("CALCOAL")+smass("KILNCOAL")               # kg/s firing (pinned)
+    # Specific coal exergy (J/kg) is a FUEL PROPERTY, not an operating result. It is
+    # computed ONCE (on the first solve) and cached, so re-solving at a different
+    # operating point cannot drift it. Without this cache, ex_sp is re-derived from
+    # the re-solved coal stream each call and shifts slightly, which makes eps_fixed
+    # inflate spuriously at the optimum (the "55% efficiency" artefact). Freezing it
+    # makes the fixed fuel-exergy denominator genuinely constant at constant firing.
+    if _EX_SP_CACHE[0] is None:
+        _EX_SP_CACHE[0]=EX.coal_beta(EX.read_coal_ultimate(aspen,"CALCOAL"))  # J/kg, frozen
+    ex_sp=_EX_SP_CACHE[0]
+    fuel_ex_fixed=m_coal*ex_sp                              # W, solve-independent
+    eps_fixed=clk/(fuel_ex_fixed+elec) if (fuel_ex_fixed+elec)>0 else 0.0
+    eps_stream=clk/(coal_ex+elec) if (coal_ex+elec)>0 else 0.0
+
+    # ---- specific irreversibility -------------------------------------------
+    m_clinker=smass("CLINKOUT")                             # kg/s
+    spec_IB_MJkg=(tot_IB/m_clinker)/1e6 if m_clinker>0 else float("nan")  # MJ/kg
+    spec_IB=tot_IB/clk if clk>0 else float("nan")                         # MW/MW
+
+    plant={"I_B":tot_IB,
            "I_A":sum(s["I_A"] for s in sections.values()),
            "IP":sum(s["IP"] for s in sections.values()),
            "coal_ex":coal_ex,"clk":clk,
-           "eps":clk/(coal_ex+elec) if (coal_ex+elec)>0 else 0.0,
+           "eps":eps_fixed,                  # primary = fixed fuel-exergy basis
+           "eps_stream":eps_stream,          # reference (re-solve dependent)
+           "fuel_ex_fixed":fuel_ex_fixed,"m_coal":m_coal,"elec":elec,
+           "m_clinker":m_clinker,
+           "spec_IB_MJkg":spec_IB_MJkg,      # primary specific irreversibility
+           "spec_IB":spec_IB,                # dimensionless reference (PSO objective)
            "ncv":EX._NCV_ACTIVE[0],
+           "rminletg_T":(SR.get("RMINLETG",{}) or {}).get("T"),
            "clinker_T":SR.get("CLINKER",{}).get("T")}
     return sections, plant
 
@@ -318,6 +408,13 @@ def verdict(sections, plant):
        REJECT only on hard physical violations (neg irreversibility / energy open).
     """
     hard=[]; capped=[]
+    # --- BRANCH GUARD: reject non-physical hot-branch solves -----------------
+    rmg_T = plant.get("rminletg_T")
+    if rmg_T is not None and rmg_T > GUARD_RMINLETG_MAX_K:
+        hard.append("RMINLETG %.1fK > %.0fK (hot-branch solve)"%(rmg_T, GUARD_RMINLETG_MAX_K))
+    plant_mw = plant.get("I_B", 0.0)/1e6
+    if plant_mw > GUARD_PLANT_MAX_MW:
+        hard.append("plant total %.1fMW > %.0fMW (non-physical)"%(plant_mw, GUARD_PLANT_MAX_MW))
     for sec,s in sections.items():
         # hard rejects: genuine second-law / balance failures
         if abs(s["E_resid"])>ACC_ENERGY_TOL_MW*1e6:
@@ -348,7 +445,8 @@ def csv_header(keys):
         t=sec.replace(" ","")
         h+=["%s_I_B_MW"%t,"%s_I_A_MW"%t,"%s_eps"%t,"%s_eps_capped"%t,"%s_IP_MW"%t,"%s_Eclose_MW"%t]
     h+=["plant_I_B_MW","plant_IP_MW","plant_eps","coal_ex_MW","clinker_ex_MW",
-        "clinker_T_K","NCV_kJkg"]
+        "clinker_T_K","NCV_kJkg",
+        "plant_spec_I_MJkg","plant_spec_I_MWMW","clinker_mass_kgps","plant_eps_stream"]
     return h
 
 def row_for(i, status, reason, keys, sample, sections, plant):
@@ -368,7 +466,11 @@ def row_for(i, status, reason, keys, sample, sections, plant):
         round(plant.get("coal_ex",float('nan'))/1e6,4),
         round(plant.get("clk",float('nan'))/1e6,4),
         round((plant.get("clinker_T") or float('nan')),2),
-        round(plant.get("ncv",float('nan'))/1e3,1)]
+        round(plant.get("ncv",float('nan'))/1e3,1),
+        round(plant.get("spec_IB_MJkg",float('nan')),4),
+        round(plant.get("spec_IB",float('nan')),4),
+        round(plant.get("m_clinker",float('nan')),4),
+        round(plant.get("eps_stream",float('nan')),4)]
     return r
 
 def done_samples():
@@ -408,6 +510,27 @@ def main():
     aspen.InitFromArchive2(BKP)
     try: aspen.Visible=0
     except Exception: pass
+
+    # ---- BASE CASE as the FIRST dataset row (WRITE-THEN-SOLVE) ----------------
+    # Evaluate the base point via the SAME write-then-solve path used for every
+    # LHS sample (Reinit -> write the 26 base inputs -> Run2 xN), then run it
+    # through the SAME evaluate(). This puts the base row on the SAME converged
+    # branch as (a) the 499 perturbed samples and (b) the standalone
+    # exergy_calculator (which also write-then-solves) -> a single, self-consistent
+    # base value everywhere (~110.5 MW). The base inputs are recorded in the input
+    # columns, with the sample id labelled "base".
+    try:
+        base = base_sample()
+        apply_and_run(aspen, base, keys)          # Reinit -> write 26 inputs -> Run2 x SETTLE_RUNS
+        b_sec, b_pl = evaluate(aspen)
+        b_status, b_reason = verdict(b_sec, b_pl)
+        writer.writerow(row_for("base", b_status, (b_reason or "base_case_write_then_solve"),
+                                keys, base, b_sec, b_pl)); fcsv.flush()
+        say("BASE CASE (write-then-solve): plant I_B=%.3f MW  eff=%.4f  clinker=%.3f MW"
+            %(b_pl["I_B"]/1e6, b_pl.get("eps",0.0), b_pl.get("clk",0.0)/1e6))
+        say("  ^ should match standalone exergy_calculator (write-then-solve branch, ~110.5 MW)")
+    except Exception as e:
+        say("BASE CASE row failed: %s"%str(e)[:120])
 
     n_ok=n_cap=n_rej=n_fail=0; t0=time.time()
     # count any OK rows already present (resume)

@@ -1,0 +1,40 @@
+RANKED SENSITIVITY - top 5 input drivers per section
+(normalized SHAP importance, mean over the section's 3 exergy metrics; hybrid surrogate)
+==============================================================================
+Section         | Rank 1 | Rank 2 | Rank 3 | Rank 4 | Rank 5
+------------------------------------------------------------
+RawMill         | RM dryer T 0.487 | RM gas T 0.268 | RM fan T 0.165 | Raw-meal feed 0.007 | Coal split 0.006
+CoalMill        | Gas-heater T 0.428 | CM dryer T 0.280 | CM gas T 0.230 | CM gas flow 0.007 | PH-K2 T 0.004
+Preheater       | Calciner T 0.182 | PH-K5 T 0.162 | PH-C5 T 0.079 | PH-C1 T 0.071 | RM dryer T 0.062
+Calciner        | Coal feed 0.187 | Coal split 0.179 | Calciner T 0.162 | Raw-meal feed 0.107 | PH-K5 T 0.101
+Kiln            | Cooler air 2 0.154 | Raw-meal feed 0.150 | Sec-air split 0.146 | Coal split 0.145 | Coal feed 0.126
+ClinkerCooler   | Raw-meal feed 0.200 | Calciner T 0.152 | Cooler air 2 0.135 | Coal split 0.113 | Coal feed 0.110
+==============================================================================
+
+OVERALL plant-wide input ranking (mean over all 18 section outputs):
+   1. RM dryer T       0.0971
+   2. Calciner T       0.0952
+   3. Raw-meal feed    0.0875
+   4. Coal split       0.0838
+   5. Coal feed        0.0809
+   6. Gas-heater T     0.0785
+   7. Cooler air 2     0.0568
+   8. CM dryer T       0.0546
+   9. Sec-air split    0.0543
+  10. RM gas T         0.0513
+  11. PH-K5 T          0.0483
+  12. CM gas T         0.0446
+  13. RM fan T         0.0329
+  14. PH-C5 T          0.0267
+  15. Cooler air 1     0.0256
+  16. PH-C1 T          0.0164
+  17. PH-K1 T          0.0106
+  18. PH-C3 T          0.0090
+  19. PH-K3 T          0.0077
+  20. PH-C2 T          0.0068
+  21. PH-K2 T          0.0067
+  22. CM gas flow      0.0053
+  23. PH-C4 T          0.0051
+  24. PH-K4 T          0.0049
+  25. RM gas flow      0.0048
+  26. Meal split       0.0045

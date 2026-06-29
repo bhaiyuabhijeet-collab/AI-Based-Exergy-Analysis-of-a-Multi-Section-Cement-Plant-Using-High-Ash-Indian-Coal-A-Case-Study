@@ -1,0 +1,50 @@
+================================================================
+STEP 2 (HYBRID) - per-section ANN/RF selection
+================================================================
+loaded 517 rows; using 500 (status ('OK',), drop_base=False)
+split: train=350 val=75 test=75
+
+--- model selection on VALIDATION (per section) ---
+  RawMill        val R2  ANN=0.503  RF=0.884  -> RF
+  CoalMill       val R2  ANN=0.800  RF=0.945  -> RF
+  Preheater      val R2  ANN=0.881  RF=0.707  -> ANN
+  Calciner       val R2  ANN=0.959  RF=0.790  -> ANN
+  Kiln           val R2  ANN=0.961  RF=0.800  -> ANN
+  ClinkerCooler  val R2  ANN=0.965  RF=0.821  -> ANN
+
+--- model selection on VALIDATION (plant outputs, individual) ---
+  clinker_ex_MW      val R2  ANN=0.970  RF=1.000  -> RF
+  plant_spec_I_MJkg  val R2  ANN=0.770  RF=0.724  -> ANN
+  plant_eps          val R2  ANN=0.962  RF=0.980  -> RF
+
+=== HELD-OUT TEST ACCURACY (mean R2 over 21 outputs) ===
+  ANN-only    : 0.8530
+  RF-only     : 0.8375
+  HYBRID      : 0.9281   <-- per-section best, selected on validation
+
+per-output TEST R2 (chosen model in CAPS):
+  RawMill_I_B_MW       ANN 0.605  RF[0.922] -> RF
+  RawMill_eps          ANN 0.424  RF[0.885] -> RF
+  RawMill_IP_MW        ANN 0.591  RF[0.912] -> RF
+  CoalMill_I_B_MW      ANN 0.794  RF[0.935] -> RF
+  CoalMill_eps         ANN 0.793  RF[0.921] -> RF
+  CoalMill_IP_MW       ANN 0.780  RF[0.930] -> RF
+  Preheater_I_B_MW     ANN[0.759] RF 0.535  -> ANN
+  Preheater_eps        ANN[0.941] RF 0.882  -> ANN
+  Preheater_IP_MW      ANN[0.878] RF 0.659  -> ANN
+  Calciner_I_B_MW      ANN[0.957] RF 0.903  -> ANN
+  Calciner_eps         ANN[0.945] RF 0.747  -> ANN
+  Calciner_IP_MW       ANN[0.967] RF 0.760  -> ANN
+  Kiln_I_B_MW          ANN[0.957] RF 0.770  -> ANN
+  Kiln_eps             ANN[0.962] RF 0.892  -> ANN
+  Kiln_IP_MW           ANN[0.961] RF 0.801  -> ANN
+  ClinkerCooler_I_B_MW ANN[0.967] RF 0.795  -> ANN
+  ClinkerCooler_eps    ANN[0.956] RF 0.882  -> ANN
+  ClinkerCooler_IP_MW  ANN[0.935] RF 0.695  -> ANN
+  clinker_ex_MW        ANN 0.965  RF[1.000] -> RF
+  plant_spec_I_MJkg    ANN[0.817] RF 0.780  -> ANN
+  plant_eps            ANN 0.958  RF[0.983] -> RF
+
+saved hybrid surrogate -> D:\Ph.D\Ph.D Research paper work\AI-Based Exergy Analysis of a Multi-Section Cement Plant Using High-Ash Indian Coal A Case Study\AspenPlus\ANN_models\HYBRID
+Step 3/4: load hybrid_bundle.joblib + hybrid_ann.keras + scaler_X/scaler_y;
+predict per the helper in this file's docstring (ANN-routed scaled, RF-routed raw).

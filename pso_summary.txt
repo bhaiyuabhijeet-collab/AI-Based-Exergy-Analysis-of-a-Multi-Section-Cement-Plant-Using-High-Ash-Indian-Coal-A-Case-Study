@@ -1,0 +1,35 @@
+================================================================
+STEP 4 PHASE 1 - PSO surrogate optimisation
+================================================================
+objective : minimise SPECIFIC irreversibility (sum six I_B / clinker exergy)
+surrogate : HYBRID (per-section ANN/RF; mills=RF, thermal=ANN), 21 outputs
+bounds    : +-10% box around base case
+mode      : FIX_THROUGHPUT - pinned rawmeal_feed[kg/s], coal_feed[kg/s], meal_split[-], coal_split[-], clcalc_T[K]; clinker held within +-2% of base
+swarm     : 40 particles, 200 iters, seed 42
+
+                                   base      optimum   (SURROGATE)
+total irreversibility   [MW]   =  113.045    103.150
+clinker product exergy  [MW]   =   64.451     64.432
+specific irreversibility[-]    =   1.7540     1.6009
+
+specific-irreversibility reduction = 0.1531 (8.7%)
+
+[bound check] inputs pinned at a box bound (review for throughput tricks):
+   rmgas_flow[kg/s]   -> upper bound
+   rmgas_temp[K]      -> upper bound
+   cmgas_flow[kg/s]   -> upper bound
+   cmgas_temp[K]      -> upper bound
+   clrcair_flow[kg/s] -> lower bound
+   clrcair2_flow[kg/s] -> lower bound
+   cmdry_T[K]         -> upper bound
+   phk1_T[K]          -> upper bound
+   phk2_T[K]          -> lower bound
+   phk4_T[K]          -> lower bound
+   phk5_T[K]          -> upper bound
+   phc1_T[K]          -> upper bound
+   phc3_T[K]          -> lower bound
+   phc5_T[K]          -> upper bound
+   NB: raw-meal/coal feed pinned at the UPPER bound can inflate clinker
+       exergy and lower specific-I without a true efficiency gain.
+
+optimised operating point: pso_result.csv

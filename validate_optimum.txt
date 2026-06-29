@@ -1,0 +1,30 @@
+==============================================================================
+STEP 4 PHASE 2 - ASPEN-VALIDATED optimum (REAL model)
+==============================================================================
+mode: FIX_THROUGHPUT (constant duty) - pinned rawmeal_feed[kg/s], coal_feed[kg/s], meal_split[-], coal_split[-], clcalc_T[K], clinker +-2%
+comparison: optimum vs the write-then-solve base (single branch, ~110.5 MW),
+            the same base used in Table 3 / calculator / dataset.
+
+quantity                         base      optimum    change
+--------------------------------------------------------------
+total irreversibility MW      110.505      106.193     -3.9%
+clinker exergy MW              64.453       64.453      0.0%
+specific irrev MW/MW           1.7145       1.6476     -3.9%
+overall efficiency %             37.7         37.7
+--------------------------------------------------------------
+per-section irreversibility (MW): base -> optimum
+  Raw Mill           7.507 ->     4.948  (-34.1%)
+  Coal Mill          1.509 ->     1.527  ( +1.1%)
+  Preheater         11.431 ->    12.988  (+13.6%)
+  Calciner          36.627 ->    34.547  ( -5.7%)
+  Kiln              37.709 ->    36.711  ( -2.6%)
+  Clinker Cooler    15.722 ->    15.472  ( -1.6%)
+
+[OK] clinker change = +0.0% (production effectively held at constant duty).
+[OK] overall efficiency stays near base (37.7% -> 37.7%).
+[NOTE] free inputs pinned at a box bound: rmgas_flow[kg/s](upper), rmgas_temp[K](upper), cmgas_flow[kg/s](upper), cmgas_temp[K](upper), clrcair_flow[kg/s](lower), clrcair2_flow[kg/s](lower), cmdry_T[K](upper), phk1_T[K](upper), phk2_T[K](lower), phk4_T[K](lower), phk5_T[K](upper), phc1_T[K](upper), phc3_T[K](lower), phc5_T[K](upper)
+       many edge-pinned inputs => the +-10% box itself is binding;
+       consider tightening the box if a smoother interior optimum is wanted.
+
+>> TABLE 6: report total-I and specific-I reduction at CONSTANT DUTY, using
+   the change column (optimum vs base). Single base = 110.5 MW (write-then-solve).

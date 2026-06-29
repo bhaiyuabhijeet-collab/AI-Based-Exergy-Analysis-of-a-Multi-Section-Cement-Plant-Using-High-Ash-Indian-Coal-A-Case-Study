@@ -1,0 +1,7 @@
+section,rank1,rank2,rank3,rank4,rank5
+RawMill,RM dryer T (0.487),RM gas T (0.268),RM fan T (0.165),Raw-meal feed (0.007),Coal split (0.006)
+CoalMill,Gas-heater T (0.428),CM dryer T (0.280),CM gas T (0.230),CM gas flow (0.007),PH-K2 T (0.004)
+Preheater,Calciner T (0.182),PH-K5 T (0.162),PH-C5 T (0.079),PH-C1 T (0.071),RM dryer T (0.062)
+Calciner,Coal feed (0.187),Coal split (0.179),Calciner T (0.162),Raw-meal feed (0.107),PH-K5 T (0.101)
+Kiln,Cooler air 2 (0.154),Raw-meal feed (0.150),Sec-air split (0.146),Coal split (0.145),Coal feed (0.126)
+ClinkerCooler,Raw-meal feed (0.200),Calciner T (0.152),Cooler air 2 (0.135),Coal split (0.113),Coal feed (0.110)

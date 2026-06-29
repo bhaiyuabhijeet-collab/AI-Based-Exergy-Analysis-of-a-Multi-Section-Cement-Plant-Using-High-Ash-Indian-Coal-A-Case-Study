@@ -1,0 +1,157 @@
+section,rank,input,input_key,sensitivity_index
+RawMill,1,RM dryer T,rmdry_T[K],0.4871
+RawMill,2,RM gas T,rmgas_temp[K],0.2684
+RawMill,3,RM fan T,rmfan_T[K],0.1647
+RawMill,4,Raw-meal feed,rawmeal_feed[kg/s],0.0069
+RawMill,5,Coal split,coal_split[-],0.006
+RawMill,6,RM gas flow,rmgas_flow[kg/s],0.0057
+RawMill,7,PH-K5 T,phk5_T[K],0.0047
+RawMill,8,Calciner T,clcalc_T[K],0.004
+RawMill,9,PH-C4 T,phc4_T[K],0.0038
+RawMill,10,PH-C5 T,phc5_T[K],0.0037
+RawMill,11,Cooler air 2,clrcair2_flow[kg/s],0.0036
+RawMill,12,PH-K4 T,phk4_T[K],0.0034
+RawMill,13,Meal split,meal_split[-],0.0033
+RawMill,14,PH-C3 T,phc3_T[K],0.0033
+RawMill,15,PH-K2 T,phk2_T[K],0.0033
+RawMill,16,Cooler air 1,clrcair_flow[kg/s],0.0032
+RawMill,17,CM gas T,cmgas_temp[K],0.0031
+RawMill,18,CM gas flow,cmgas_flow[kg/s],0.0029
+RawMill,19,PH-K3 T,phk3_T[K],0.0028
+RawMill,20,CM dryer T,cmdry_T[K],0.0027
+RawMill,21,PH-C2 T,phc2_T[K],0.0026
+RawMill,22,Sec-air split,secair_split[-],0.0026
+RawMill,23,PH-C1 T,phc1_T[K],0.0024
+RawMill,24,Coal feed,coal_feed[kg/s],0.002
+RawMill,25,Gas-heater T,gasht_T[K],0.0019
+RawMill,26,PH-K1 T,phk1_T[K],0.0019
+CoalMill,1,Gas-heater T,gasht_T[K],0.4284
+CoalMill,2,CM dryer T,cmdry_T[K],0.2802
+CoalMill,3,CM gas T,cmgas_temp[K],0.2299
+CoalMill,4,CM gas flow,cmgas_flow[kg/s],0.007
+CoalMill,5,PH-K2 T,phk2_T[K],0.0036
+CoalMill,6,PH-C5 T,phc5_T[K],0.0033
+CoalMill,7,PH-C1 T,phc1_T[K],0.003
+CoalMill,8,RM fan T,rmfan_T[K],0.0029
+CoalMill,9,RM dryer T,rmdry_T[K],0.0028
+CoalMill,10,Raw-meal feed,rawmeal_feed[kg/s],0.0028
+CoalMill,11,PH-K3 T,phk3_T[K],0.0028
+CoalMill,12,RM gas T,rmgas_temp[K],0.0028
+CoalMill,13,Cooler air 1,clrcair_flow[kg/s],0.0027
+CoalMill,14,PH-K5 T,phk5_T[K],0.0025
+CoalMill,15,PH-C4 T,phc4_T[K],0.0025
+CoalMill,16,PH-K1 T,phk1_T[K],0.0025
+CoalMill,17,Sec-air split,secair_split[-],0.0025
+CoalMill,18,RM gas flow,rmgas_flow[kg/s],0.0023
+CoalMill,19,Cooler air 2,clrcair2_flow[kg/s],0.0021
+CoalMill,20,Meal split,meal_split[-],0.0021
+CoalMill,21,Coal feed,coal_feed[kg/s],0.002
+CoalMill,22,PH-C2 T,phc2_T[K],0.002
+CoalMill,23,PH-K4 T,phk4_T[K],0.0019
+CoalMill,24,PH-C3 T,phc3_T[K],0.0019
+CoalMill,25,Calciner T,clcalc_T[K],0.0019
+CoalMill,26,Coal split,coal_split[-],0.0014
+Preheater,1,Calciner T,clcalc_T[K],0.1822
+Preheater,2,PH-K5 T,phk5_T[K],0.1623
+Preheater,3,PH-C5 T,phc5_T[K],0.0786
+Preheater,4,PH-C1 T,phc1_T[K],0.0707
+Preheater,5,RM dryer T,rmdry_T[K],0.0624
+Preheater,6,Raw-meal feed,rawmeal_feed[kg/s],0.0587
+Preheater,7,Coal split,coal_split[-],0.0573
+Preheater,8,Coal feed,coal_feed[kg/s],0.0571
+Preheater,9,PH-K1 T,phk1_T[K],0.0429
+Preheater,10,PH-C3 T,phc3_T[K],0.0329
+Preheater,11,Sec-air split,secair_split[-],0.031
+Preheater,12,PH-K3 T,phk3_T[K],0.0236
+Preheater,13,PH-C2 T,phc2_T[K],0.0193
+Preheater,14,PH-K2 T,phk2_T[K],0.0156
+Preheater,15,Cooler air 1,clrcair_flow[kg/s],0.0153
+Preheater,16,Cooler air 2,clrcair2_flow[kg/s],0.0115
+Preheater,17,CM gas T,cmgas_temp[K],0.0109
+Preheater,18,PH-C4 T,phc4_T[K],0.0105
+Preheater,19,Gas-heater T,gasht_T[K],0.0097
+Preheater,20,CM dryer T,cmdry_T[K],0.0094
+Preheater,21,RM gas T,rmgas_temp[K],0.008
+Preheater,22,RM fan T,rmfan_T[K],0.0078
+Preheater,23,PH-K4 T,phk4_T[K],0.0077
+Preheater,24,CM gas flow,cmgas_flow[kg/s],0.0051
+Preheater,25,RM gas flow,rmgas_flow[kg/s],0.0049
+Preheater,26,Meal split,meal_split[-],0.0044
+Calciner,1,Coal feed,coal_feed[kg/s],0.1873
+Calciner,2,Coal split,coal_split[-],0.1794
+Calciner,3,Calciner T,clcalc_T[K],0.1617
+Calciner,4,Raw-meal feed,rawmeal_feed[kg/s],0.1067
+Calciner,5,PH-K5 T,phk5_T[K],0.1009
+Calciner,6,PH-C5 T,phc5_T[K],0.0599
+Calciner,7,Sec-air split,secair_split[-],0.0358
+Calciner,8,Cooler air 2,clrcair2_flow[kg/s],0.0344
+Calciner,9,Cooler air 1,clrcair_flow[kg/s],0.0154
+Calciner,10,Gas-heater T,gasht_T[K],0.0111
+Calciner,11,CM dryer T,cmdry_T[K],0.0109
+Calciner,12,RM dryer T,rmdry_T[K],0.0095
+Calciner,13,RM gas T,rmgas_temp[K],0.009
+Calciner,14,CM gas T,cmgas_temp[K],0.0088
+Calciner,15,PH-C1 T,phc1_T[K],0.0084
+Calciner,16,RM fan T,rmfan_T[K],0.0072
+Calciner,17,PH-C2 T,phc2_T[K],0.0063
+Calciner,18,PH-C3 T,phc3_T[K],0.0062
+Calciner,19,PH-K3 T,phk3_T[K],0.0059
+Calciner,20,PH-K2 T,phk2_T[K],0.0056
+Calciner,21,PH-K1 T,phk1_T[K],0.0055
+Calciner,22,PH-K4 T,phk4_T[K],0.0052
+Calciner,23,RM gas flow,rmgas_flow[kg/s],0.0051
+Calciner,24,CM gas flow,cmgas_flow[kg/s],0.0048
+Calciner,25,Meal split,meal_split[-],0.0046
+Calciner,26,PH-C4 T,phc4_T[K],0.0045
+Kiln,1,Cooler air 2,clrcair2_flow[kg/s],0.1537
+Kiln,2,Raw-meal feed,rawmeal_feed[kg/s],0.1501
+Kiln,3,Sec-air split,secair_split[-],0.1464
+Kiln,4,Coal split,coal_split[-],0.1454
+Kiln,5,Coal feed,coal_feed[kg/s],0.1265
+Kiln,6,Calciner T,clcalc_T[K],0.069
+Kiln,7,Cooler air 1,clrcair_flow[kg/s],0.0615
+Kiln,8,CM dryer T,cmdry_T[K],0.0144
+Kiln,9,RM gas T,rmgas_temp[K],0.0116
+Kiln,10,RM dryer T,rmdry_T[K],0.0109
+Kiln,11,PH-K5 T,phk5_T[K],0.0107
+Kiln,12,Gas-heater T,gasht_T[K],0.0095
+Kiln,13,RM fan T,rmfan_T[K],0.0081
+Kiln,14,PH-C5 T,phc5_T[K],0.0079
+Kiln,15,Meal split,meal_split[-],0.0077
+Kiln,16,PH-C1 T,phc1_T[K],0.0069
+Kiln,17,RM gas flow,rmgas_flow[kg/s],0.0066
+Kiln,18,PH-K3 T,phk3_T[K],0.0066
+Kiln,19,PH-K4 T,phk4_T[K],0.0065
+Kiln,20,CM gas T,cmgas_temp[K],0.0063
+Kiln,21,CM gas flow,cmgas_flow[kg/s],0.0062
+Kiln,22,PH-K2 T,phk2_T[K],0.0061
+Kiln,23,PH-C2 T,phc2_T[K],0.0059
+Kiln,24,PH-C4 T,phc4_T[K],0.0056
+Kiln,25,PH-C3 T,phc3_T[K],0.0052
+Kiln,26,PH-K1 T,phk1_T[K],0.0048
+ClinkerCooler,1,Raw-meal feed,rawmeal_feed[kg/s],0.1998
+ClinkerCooler,2,Calciner T,clcalc_T[K],0.1523
+ClinkerCooler,3,Cooler air 2,clrcair2_flow[kg/s],0.1352
+ClinkerCooler,4,Coal split,coal_split[-],0.1132
+ClinkerCooler,5,Coal feed,coal_feed[kg/s],0.1104
+ClinkerCooler,6,Sec-air split,secair_split[-],0.1078
+ClinkerCooler,7,Cooler air 1,clrcair_flow[kg/s],0.0555
+ClinkerCooler,8,Gas-heater T,gasht_T[K],0.0103
+ClinkerCooler,9,CM dryer T,cmdry_T[K],0.0101
+ClinkerCooler,10,RM dryer T,rmdry_T[K],0.0097
+ClinkerCooler,11,PH-K5 T,phk5_T[K],0.0089
+ClinkerCooler,12,CM gas T,cmgas_temp[K],0.0088
+ClinkerCooler,13,RM gas T,rmgas_temp[K],0.0081
+ClinkerCooler,14,PH-C5 T,phc5_T[K],0.007
+ClinkerCooler,15,PH-C1 T,phc1_T[K],0.0068
+ClinkerCooler,16,RM fan T,rmfan_T[K],0.0065
+ClinkerCooler,17,PH-K1 T,phk1_T[K],0.0062
+ClinkerCooler,18,PH-K2 T,phk2_T[K],0.006
+ClinkerCooler,19,CM gas flow,cmgas_flow[kg/s],0.0059
+ClinkerCooler,20,PH-C2 T,phc2_T[K],0.005
+ClinkerCooler,21,Meal split,meal_split[-],0.0048
+ClinkerCooler,22,PH-C3 T,phc3_T[K],0.0047
+ClinkerCooler,23,PH-K3 T,phk3_T[K],0.0045
+ClinkerCooler,24,PH-K4 T,phk4_T[K],0.0043
+ClinkerCooler,25,RM gas flow,rmgas_flow[kg/s],0.0043
+ClinkerCooler,26,PH-C4 T,phc4_T[K],0.0039
